@@ -1,0 +1,57 @@
+# 盘前简报配置
+
+# 数据采集配置
+collectors:
+  us_stock:
+    enabled: true
+    symbols:
+      - symbol: "gb_$dji"
+        name: "道琼斯"
+      - symbol: "gb_$nasdaq"
+        name: "纳斯达克"
+      - symbol: "gb_$spx"
+        name: "标普500"
+      - symbol: "gb_$hxc"
+        name: "金龙指数"
+
+  a50:
+    enabled: true
+    symbol: "ft_cn"
+
+# 题材映射规则
+topic_mapping:
+  - trigger: "原油.*涨|油价.*涨"
+    sectors: ["石油开采", "油服", "化工"]
+    logic: "油价上涨利好上游开采企业"
+    priority: 3
+
+  - trigger: "黄金.*涨|金价.*高"
+    sectors: ["黄金", "有色金属"]
+    logic: "避险情绪升温，黄金股受益"
+    priority: 2
+
+  - trigger: "纳指.*跌|科技.*回调"
+    sectors: ["科技", "半导体", "新能源"]
+    logic: "美股科技股回调，A股科技板块承压"
+    priority: 2
+    is_risk: true
+
+  - trigger: "金龙.*涨|中概.*涨"
+    sectors: ["互联网", "电商", "游戏"]
+    logic: "中概股走强，利好相关板块"
+    priority: 3
+
+  - trigger: "A50.*涨|富时.*涨"
+    sectors: ["大盘蓝筹", "金融", "消费"]
+    logic: "A50期货上涨，利好权重股"
+    priority: 2
+
+# LLM 配置
+llm:
+  model: "gpt-4o-mini"
+  temperature: 0.7
+  max_tokens: 1000
+
+# 推送配置
+notifier:
+  feishu_enabled: true

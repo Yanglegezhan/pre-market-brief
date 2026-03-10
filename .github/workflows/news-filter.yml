@@ -1,0 +1,52 @@
+name: News Filter - 盘后新闻筛选
+
+on:
+  schedule:
+    # 北京时间 8:30 运行（UTC 0:30）
+    - cron: '30 0 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '运行模式'
+        required: true
+        default: 'news-filter'
+        type: choice
+        options:
+          - news-filter
+          - standard
+
+jobs:
+  news-filter:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        cd 2-Projects/pre-market-brief
+        pip install -r requirements.txt
+
+    - name: Run News Filter
+      env:
+        FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+        LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+        LLM_MODEL: ${{ secrets.LLM_MODEL }}
+      run: |
+        cd 2-Projects/pre-market-brief
+        python main.py --news-filter
+
+    - name: Upload Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: news-filter-report
+        path: 2-Projects/pre-market-brief/news_filter_*.md
+        retention-days: 7
